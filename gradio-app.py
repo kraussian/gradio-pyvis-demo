@@ -56,7 +56,7 @@ custom_css = """
 # Generate sample data
 def generate_sample_data():
     # Generate a random directed graph
-    G = nx.gnm_random_graph(50, 100, directed=True)
+    G = nx.gnm_random_graph(20, 40, directed=True)
     
     # Prepare data to store the full chain of connections for each node
     data = []
@@ -64,7 +64,8 @@ def generate_sample_data():
         # Compute the full connection chain starting from the current node
         connection_chain = []
         current_node = node
-        while True:
+        #while True:
+        for _ in range(10):  # Limit chain to maximum 10 steps
             connection_chain.append(current_node)
             successors = list(G.successors(current_node))
             if not successors:
@@ -79,11 +80,12 @@ def generate_sample_data():
     df = pd.DataFrame(data)
     return G, df
 
-# Store the PyVis graph object globally
-net = Network(notebook=False, directed=True, height="380px")
-
 # Function to initialize the PyVis graph
 def initialize_pyvis_graph(G):
+    global net  # Declare the net object as global
+    # Reinitialize the Network object to clear previous data
+    net = Network(notebook=False, directed=True, height="380px")
+
     if debug: print("Initializing PyVis graph...")
     for node in G.nodes:
         net.add_node(node, label=str(node))  # Add all nodes
@@ -123,12 +125,33 @@ def update_pyvis_highlights(selected_node):
 
 # Update the update_graph function
 def update_graph(selected_node):
-    if debug: print(f"Graph update requested for node: {selected_node}")
+    if debug:
+        print(f"Graph update requested for node: {selected_node}")
+
     if selected_node is None or selected_node == "":
         return create_pyvis_html()
 
     selected_node = int(selected_node)
-    update_pyvis_highlights(selected_node)
+
+    # Highlight only the selected node and its immediate neighbors
+    for node in net.nodes:
+        node["color"] = None  # Reset color
+        node["size"] = None  # Reset size
+
+    for edge in net.edges:
+        edge["color"] = None  # Reset edge color
+
+    # Highlight selected node
+    for node in net.nodes:
+        if node["id"] == selected_node:
+            node["color"] = "red"
+            node["size"] = 20
+
+    # Highlight edges originating from the selected node
+    for edge in net.edges:
+        if edge["from"] == selected_node:
+            edge["color"] = "red"
+
     return create_pyvis_html()
 
 # Function to create the graph HTML
