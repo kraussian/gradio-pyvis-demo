@@ -12,4 +12,4 @@ It showcases the following features:
 
 TODO:
 
-* A dropdown was added as Gradio Dataframe does not have an event listener returning the row/cell the user has clicked
+- [ ] A Dropdown was added as Gradio Dataframe does not have an event listener returning the row/cell the user has clicked. Find a way to remove the Dropdown and make the Dataframe fully interactive
